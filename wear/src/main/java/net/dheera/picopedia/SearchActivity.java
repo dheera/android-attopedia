@@ -26,6 +26,14 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This is a (Google Now)-like voice search interface and serves
+ * as the main activity for this package.
+ *
+ * At the time of this writing Google Now does not support intent
+ * filters, so we unfortunately cannot launch the WikipediaActivity
+ * from Google Now directly.
+ */
 public class SearchActivity extends Activity {
 
     private static final String TAG = "picopedia.SearchActivity";
@@ -42,7 +50,7 @@ public class SearchActivity extends Activity {
         if(self != null) {
             return self;
         }
-        return null;
+        return new SearchActivity();
     }
 
     @Override

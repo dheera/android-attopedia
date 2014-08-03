@@ -14,12 +14,20 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Scanner;
 
 /**
- * Created by dheera on 8/2/14.
+ * Connects to DataLayerListenerService on a phone to fetch data from the web.
  */
 public class ProxyClient {
     private static final String TAG = "picopedia.ProxyClient";
@@ -45,8 +53,12 @@ public class ProxyClient {
     // in the case of multiple simultaneous requests
     private static int requestCounter = 0;
 
+    // for communicating with phone
     private GoogleApiClient mGoogleApiClient = null;
     private Node mPhoneNode = null;
+
+    // where to cache files so we don't keep re-downloading the same URLs
+    private static File cacheDir;
 
     public static ProxyClient instance(Context context) {
         if(instance == null) {
@@ -59,6 +71,7 @@ public class ProxyClient {
         instance = this;
         context = c;
         requestResults = new HashMap<String, byte[]>();
+        cacheDir = SearchActivity.instance().getCacheDir();
         connect();
     }
 
@@ -160,8 +173,38 @@ public class ProxyClient {
         }
     }
 
-    public void get(final String url, int getter , final ProxyResultHandler mResultHandler) {
+    public void get(final String url, int getter, final ProxyResultHandler mResultHandler) {
         if(D) Log.d(TAG, String.format("get(%s)", url));
+
+        final String cacheKey = SHA1(String.format("get %d %s", getter, url).getBytes());
+        final File cacheFile = new File(cacheDir, cacheKey);
+
+        if(cacheFile.exists()) {
+            // we have it cached, fetch it from the filesystem
+            int size = (int) cacheFile.length();
+            final byte[] data = new byte[size];
+            try {
+                BufferedInputStream buf = new BufferedInputStream(new FileInputStream(cacheFile));
+                buf.read(data, 0, data.length);
+                buf.close();
+                // successful if we got here, trigger the result handler
+                new Thread() {
+                    public void run() {
+                        mResultHandler.onResult(data);
+                    }
+                }.start();
+                // ... and quit
+                return;
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                // oops, getting the cache failed for some reason, continue on to try to
+                // ask phone to fetch new copy from the web
+            } catch (IOException e) {
+                e.printStackTrace();
+                // oops, getting the cache failed for some reason, continue on to try to
+                // ask phone to fetch new copy from the web
+            }
+        }
 
         final int timeoutMax = 30; // in seconds
         final int requestId = requestCounter++; // unique id per get request; phone will provide back the id upon result
@@ -187,11 +230,38 @@ public class ProxyClient {
                     requestResults.remove(requestId);
                 } else {
                     // we have data
-                    mResultHandler.onResult((byte[])requestResults.get(requestId));
+                    // ... cache it
+                    byte[] data = (byte[]) requestResults.get(requestId);
+                    try {
+                        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cacheFile));
+                        bos.write(data);
+                        bos.flush();
+                        bos.close();
+                    } catch(Exception e) {
+                        e.printStackTrace();
+                    }
+                    // ... and trigger the result handler
+                    mResultHandler.onResult(data);
                     requestResults.remove(requestId);
                 }
             }
         }.start();
+    }
+
+    public static String SHA1(byte[] data) {
+        MessageDigest md = null;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        }
+        catch(NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+        byte[] digest = md.digest(data);
+        StringBuffer hexString = new StringBuffer();
+        for (int i=0; i<digest.length; i++) {
+            hexString.append(Integer.toHexString(0xFF & digest[i]));
+        }
+        return hexString.toString();
     }
 
 }

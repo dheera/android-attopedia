@@ -20,8 +20,6 @@ public class SearchAdapter extends FragmentGridPagerAdapter {
 
     ArrayList<SearchResult> searchResults = null;
 
-    public static final int MESSAGE_SNAP = 1;
-
     public SearchAdapter(Context ctx, FragmentManager fm, ArrayList<SearchResult> s) {
         super(fm);
         mContext = ctx;
