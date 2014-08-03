@@ -1,5 +1,6 @@
 package net.dheera.picopedia;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -14,7 +15,10 @@ import android.support.wearable.view.WatchViewStub;
 import android.text.Html;
 import android.util.Log;
 import android.view.Display;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 
 import org.json.JSONArray;
@@ -37,11 +41,12 @@ import java.util.List;
 public class SearchActivity extends Activity {
 
     private static final String TAG = "picopedia.SearchActivity";
-    private static final boolean D = true;
+    private static final boolean D = false;
     private static SearchActivity self;
 
     GridViewPager mGridViewPager;
     SearchAdapter mSearchAdapter;
+    FrameLayout mFrameLayout_progress;
 
     public static int screenWidth = 0;
     public static int screenHeight = 0;
@@ -70,11 +75,52 @@ public class SearchActivity extends Activity {
         stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
             @Override
             public void onLayoutInflated(WatchViewStub stub) {
+                final ImageView mImageView = (ImageView) findViewById(R.id.imageView);
+                final ImageView mImageView_again = (ImageView) findViewById(R.id.imageView_again);
+
+                // set the progress bar to 3/4 of the screen
+                mFrameLayout_progress = (FrameLayout) findViewById(R.id.frameLayout_progress);
+                ViewGroup.LayoutParams l = mFrameLayout_progress.getLayoutParams();
+                l.height = screenHeight*3/4;
+                mFrameLayout_progress.setLayoutParams(l);
+
+                // set the "search again" hot area to 1/4 of the screen
+                // (the first search result card will be 3/4 of the screen)
+                l = mImageView_again.getLayoutParams();
+                l.height = screenHeight/4;
+                mImageView_again.setLayoutParams(l);
+
                 mSearchAdapter = new SearchAdapter(self, getFragmentManager(), null);
                 mGridViewPager = (GridViewPager) findViewById(R.id.pager);
-
                 mGridViewPager.setAdapter(mSearchAdapter);
-                ImageView mImageView = (ImageView) findViewById(R.id.imageView);
+                mGridViewPager.setOnPageChangeListener(new GridViewPager.OnPageChangeListener() {
+                    @Override
+                    public void onPageScrolled(int i, int i2, float v, float v2, int i3, int i4) {
+
+                    }
+
+                    @Override
+                    public void onPageSelected(int i, int i2) {
+                        if(i==0 && i2==0) {
+                            mImageView_again.setVisibility(View.VISIBLE);
+                        } else {
+                            mImageView_again.setVisibility(View.GONE);
+                        }
+                    }
+
+                    @Override
+                    public void onPageScrollStateChanged(int i) {
+
+                    }
+                });
+
+                mImageView_again.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        beginSpeech();
+                    }
+                });
+
                 mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
                         R.drawable.searchback, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
             }
@@ -103,6 +149,7 @@ public class SearchActivity extends Activity {
             List<String> results = data.getStringArrayListExtra(
                     RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
+            mFrameLayout_progress.setVisibility(View.VISIBLE);
             try {
                 final String spokenTextEncoded = URLEncoder.encode(spokenText, "utf-8");
                 final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+-%22may%20refer%20to%22+site:en.wikipedia.org+" + spokenTextEncoded;
@@ -132,25 +179,39 @@ public class SearchActivity extends Activity {
                                 }
                             }
 
+                            if(outresults.size()>0) {
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        // workaround because notifyDataSetChanged() doesn't work
+                                        // and crashes the GridViewPager
+                                        // if the number of rows changes
+
+                                        mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
+                                        mGridViewPager.setAdapter(mSearchAdapter);
+                                        mFrameLayout_progress.setVisibility(View.GONE);
+                                    }
+                                });
+                            }
+                        } catch(JSONException e) {
+                            e.printStackTrace();
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    // workaround because notifyDataSetChanged() doesn't work
-                                    // and crashes the GridViewPager
-                                    // if the number of rows changes
-
-                                    mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
-                                    mGridViewPager.setAdapter(mSearchAdapter);
+                                    mFrameLayout_progress.setVisibility(View.GONE);
                                 }
                             });
-
-                        } catch(JSONException e) {
-                            e.printStackTrace();
                         }
                     }
                     @Override
                     public void onFail() {
                         Log.d(TAG, "onFail");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mFrameLayout_progress.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 });
             } catch(UnsupportedEncodingException e) {

@@ -259,13 +259,13 @@ public class DataLayerListenerService extends WearableListenerService {
             if (D) Log.d(TAG, "begin");
             Document doc = Jsoup.connect(url).get();
             Elements elements = doc.select("body").get(0).children();
-            String jsubsection_text = "";
+            JSONArray jsubsection_contentboxes = new JSONArray();
             JSONArray jsections = new JSONArray();
             JSONObject jsection = new JSONObject();
             JSONArray jsubsections = new JSONArray();
             JSONObject jsubsection = new JSONObject();
 
-            // first section
+            // initialise first section
             if(articleTitle != "") {
                 jsection.put("title", articleTitle);
             } else {
@@ -285,26 +285,57 @@ public class DataLayerListenerService extends WearableListenerService {
                 e.printStackTrace();
             }
 
-            // first section's subsection
+            // initialise first section's subsection
             jsubsection.put("title", "");
 
             for (Element element : elements) {
+                if (element.tagName().equals("dl")) {
+                    // equation, render it as an image without a caption
+                    JSONObject boxImage = new JSONObject();
+                    boxImage.put("type", "image");
+                    Elements imgs = element.select("img");
+                    if(imgs.size()>0) {
+                        boxImage.put("url", imgs.get(0).attr("abs:src"));
+                        jsubsection_contentboxes.put(boxImage);
+                    }
+                }
+
+                if (element.hasClass("thumb")) {
+                    // we have a wikipedia image, add it to the current subsection
+                    JSONObject boxImage = new JSONObject();
+                    boxImage.put("type", "image");
+                    Elements imgs = element.select("img");
+                    if(imgs.size()>0) {
+                        boxImage.put("url", imgs.get(0).attr("abs:src"));
+                        if(!jsection.has("image_url")) {
+                            jsection.put("image_url", imgs.get(0).attr("abs:src"));
+                        }
+                        Elements thumbcaptions = element.select(".thumbcaption");
+                        if(thumbcaptions.size()>0) {
+                            boxImage.put("caption", thumbcaptions.get(0).text().replaceAll("\\[[0-9]*\\]", ""));
+                        }
+                        jsubsection_contentboxes.put(boxImage);
+                    }
+                }
+
                 if (element.tagName().equals("p") && !element.text().equals("")) {
                     // we have text, add it to the current subsection
-                    jsubsection_text += element.text() + "\n\n";
+                    JSONObject boxText = new JSONObject();
+                    boxText.put("type", "text");
+                    boxText.put("text", element.text().replaceAll("\\[[0-9]*\\]", ""));
+                    jsubsection_contentboxes.put(boxText);
                 }
 
                 if (element.tagName().equals("h2")) {
                     // we have a new section ...
                     // wrap up the subsection first
-                    if (!jsubsection_text.trim().equals("")) {
-                        jsubsection_text = jsubsection_text.replaceAll("\\[[0-9]*\\]", "");
-                        jsubsection.put("text", jsubsection_text);
+                    if (jsubsection_contentboxes.length() > 0) {
+                        jsubsection.put("contentboxes", jsubsection_contentboxes);
                         jsubsections.put(jsubsection);
                     }
                     // ... begin a new blank subsection
                     jsubsection = new JSONObject();
-                    jsubsection_text = "";
+                    jsubsection_contentboxes = new JSONArray();
                     jsubsection.put("title", "");
                     // then wrap up the section
                     if (jsubsections.length() > 0) {
@@ -319,14 +350,13 @@ public class DataLayerListenerService extends WearableListenerService {
                 if (element.tagName().equals("h3")) {
                     // we have a new subsection ...
                     // wrap up the old subsection first
-                    if (!jsubsection_text.trim().equals("")) {
-                        jsubsection_text = jsubsection_text.replaceAll("\\[[0-9]*\\]", "");
-                        jsubsection.put("text", jsubsection_text);
+                    if (jsubsection_contentboxes.length() > 0) {
+                        jsubsection.put("contentboxes", jsubsection_contentboxes);
                         jsubsections.put(jsubsection);
                     }
                     // ... and begin an new subsection
                     jsubsection = new JSONObject();
-                    jsubsection_text = "";
+                    jsubsection_contentboxes = new JSONArray();
                     jsubsection.put("title", element.text());
                 }
             }

@@ -2,7 +2,7 @@
 <resources>
 
     <string name="app_name">Picopedia</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="hello_world">Please open this application from your Android Wear smartwatch.</string>
     <string name="action_settings">Settings</string>
 
 </resources>

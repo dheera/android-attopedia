@@ -45,6 +45,9 @@ public class WikipediaActivity extends Activity {
             return null;
         }
 
+        FrameLayout mFrameLayout_progress;
+        FrameLayout mFrameLayout_retry;
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             self = this;
@@ -57,7 +60,13 @@ public class WikipediaActivity extends Activity {
             GridViewPager.LayoutParams l = new GridViewPager.LayoutParams();
             l.setMargins(0, 0, 0, 0);
             mGridViewPager.setLayoutParams(l);
-            mFrameLayout.addView(mGridViewPager);
+            mGridViewPager.setKeepScreenOn(true);
+            mFrameLayout.addView(mGridViewPager, 0);
+
+            mFrameLayout_progress = (FrameLayout) findViewById(R.id.frameLayout_progress);
+            mFrameLayout_retry = (FrameLayout) findViewById(R.id.frameLayout_retry);
+            mFrameLayout_progress.setVisibility(View.VISIBLE);
+            mFrameLayout_retry.setVisibility(View.GONE);
 
             WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             Display display = wm.getDefaultDisplay();
@@ -69,9 +78,6 @@ public class WikipediaActivity extends Activity {
             Bundle b = getIntent().getExtras();
             url = b.getString("url");
 
-            final TextView mTextView = (TextView) findViewById(R.id.textView);
-            mTextView.setText(url);
-
             ProxyClient.instance(this).get(url, ProxyClient.GETTER_WIKIPEDIA, new ProxyResultHandler() {
                 @Override
                 public void onResult(byte data[]) {
@@ -80,6 +86,7 @@ public class WikipediaActivity extends Activity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                mFrameLayout_progress.setVisibility(View.GONE);
                                 mWikipediaAdapter = new WikipediaAdapter(self, getFragmentManager(), jsections);
                                 mGridViewPager.setAdapter(mWikipediaAdapter);
                             }
@@ -87,6 +94,16 @@ public class WikipediaActivity extends Activity {
                     } catch(JSONException e) {
                         e.printStackTrace();
                     }
+                }
+                @Override
+                public void onFail() {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFrameLayout_retry.setVisibility(View.VISIBLE);
+                            mFrameLayout_progress.setVisibility(View.GONE);
+                        }
+                    });
                 }
             });
 
@@ -97,4 +114,27 @@ public class WikipediaActivity extends Activity {
             // poke it to create the instance and get the GoogleApiClient
             ProxyClient.instance(this);
         }
+
+    public void onClickRetry(View v) {
+        mFrameLayout_retry.setVisibility(View.GONE);
+        mFrameLayout_progress.setVisibility(View.VISIBLE);
+        ProxyClient.instance(this).get(url, ProxyClient.GETTER_WIKIPEDIA, new ProxyResultHandler() {
+            @Override
+            public void onResult(byte data[]) {
+                try {
+                    final JSONArray jsections = new JSONArray(new String(data));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFrameLayout_progress.setVisibility(View.GONE);
+                            mWikipediaAdapter = new WikipediaAdapter(self, getFragmentManager(), jsections);
+                            mGridViewPager.setAdapter(mWikipediaAdapter);
+                        }
+                    });
+                } catch(JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }

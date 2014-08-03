@@ -14,8 +14,6 @@ import android.view.View;
  * Users will have to go back to the first column to switch between sections.
  */
 public class CustomGridViewPager extends GridViewPager {
-    private GestureDetector mGestureDetector;
-    View.OnTouchListener mGestureListener;
 
     public CustomGridViewPager (Context context) {
         super(context);

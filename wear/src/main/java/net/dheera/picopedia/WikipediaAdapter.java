@@ -18,7 +18,7 @@ import java.io.StringWriter;
 
 public class WikipediaAdapter extends FragmentGridPagerAdapter {
     private static final String TAG = "picopedia.WikipediaAdapter";
-    private static final boolean D = true;
+    private static final boolean D = false;
 
     private final Context mContext;
     public final JSONArray jsections;
@@ -74,8 +74,7 @@ public class WikipediaAdapter extends FragmentGridPagerAdapter {
             } else {
                 try {
                     JSONObject jsubsection = jsections.getJSONObject(rowNum).getJSONArray("subsections").getJSONObject(colNum - 1);
-                    if (D) Log.d(TAG, jsubsection.toString());
-                    return WikipediaSubsectionFragment.newInstance(jsubsection.getString("title"), jsubsection.getString("text"));
+                    return WikipediaSubsectionFragment.newInstance(jsubsection.getString("title"), jsubsection.getJSONArray("contentboxes"));
                 } catch (JSONException e) {
                     StringWriter sw = new StringWriter();
                     PrintWriter pw = new PrintWriter(sw);

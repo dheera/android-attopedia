@@ -33,12 +33,18 @@ public class WikipediaSectionFragment extends Fragment {
             mProxyClient.get(image_url, ProxyClient.GETTER_IMAGE, new ProxyResultHandler() {
                 @Override
                 public void onResult(final byte data[]) {
-                    if(data!=null && data.length>0) {
+                    if(data!=null && data.length>0 && getActivity()!=null) {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                Bitmap b = BitmapFactory.decodeByteArray(data, 0, data.length);
-                                mImageView.setImageBitmap(b);
+                                try {
+                                    Bitmap b = BitmapFactory.decodeByteArray(data, 0, data.length);
+                                    if (mImageView != null) {
+                                        mImageView.setImageBitmap(b);
+                                    }
+                                } catch(Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
                         });
                     }

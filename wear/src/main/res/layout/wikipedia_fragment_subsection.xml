@@ -17,7 +17,8 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:id="@+id/linearLayout">
 
             <TextView
                 android:layout_width="match_parent"
@@ -32,17 +33,6 @@
                 android:paddingRight="8dip"
                 android:paddingBottom="8dip" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Text"
-                android:id="@+id/textView_text"
-                android:layout_gravity="center_horizontal"
-                style="@style/WikipediaSubsectionText"
-                android:paddingBottom="24dip"
-                android:paddingLeft="8dip"
-                android:paddingTop="8dip"
-                android:paddingRight="8dip" />
         </LinearLayout>
     </ScrollView>
 </FrameLayout>

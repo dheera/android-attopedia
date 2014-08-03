@@ -13,7 +13,7 @@ import java.util.ArrayList;
 
 public class SearchAdapter extends FragmentGridPagerAdapter {
     private static final String TAG = "picopedia.WikiAdapter";
-    private static final boolean D = true;
+    private static final boolean D = false;
 
     private final Context mContext;
     public final SearchBlankFragment mSearchBlankFragment;

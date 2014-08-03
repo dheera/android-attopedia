@@ -33,7 +33,7 @@ import java.util.Scanner;
  */
 public class ProxyClient {
     private static final String TAG = "picopedia.ProxyClient";
-    private static final boolean D = true;
+    private static final boolean D = false;
     private static Context context;
 
     // raw bytes of whatever URL is being requested
@@ -192,7 +192,9 @@ public class ProxyClient {
                 // successful if we got here, trigger the result handler
                 new Thread() {
                     public void run() {
-                        mResultHandler.onResult(data);
+                        if(mResultHandler != null) {
+                            mResultHandler.onResult(data);
+                        }
                     }
                 }.start();
                 // ... and quit
@@ -228,7 +230,9 @@ public class ProxyClient {
                 if(requestResults.get(requestId) == null || ((byte[])requestResults.get(requestId)).length == 0 ) {
                     // timed out, give up
                     if(D) Log.d(TAG, "get: timed out");
-                    mResultHandler.onFail();
+                    if(mResultHandler != null) {
+                        mResultHandler.onFail();
+                    }
                     requestResults.remove(requestId);
                 } else {
                     // we have data
@@ -243,7 +247,9 @@ public class ProxyClient {
                         e.printStackTrace();
                     }
                     // ... and trigger the result handler
-                    mResultHandler.onResult(data);
+                    if(mResultHandler != null && data!= null) {
+                        mResultHandler.onResult(data);
+                    }
                     requestResults.remove(requestId);
                     // ... clean up old cache files if needed
                     File[] files = cacheDir.listFiles();

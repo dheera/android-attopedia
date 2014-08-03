@@ -19,4 +19,26 @@
         android:layout_height="match_parent"
         android:keepScreenOn="true" />
 
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:id="@+id/imageView_again"
+        android:layout_gravity="center_horizontal|top" />
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:layout_gravity="center_horizontal|bottom"
+        android:visibility="gone"
+        android:id="@+id/frameLayout_progress"
+        android:background="@color/white">
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center"
+            android:indeterminate="true" />
+    </FrameLayout>
+
 </FrameLayout>
