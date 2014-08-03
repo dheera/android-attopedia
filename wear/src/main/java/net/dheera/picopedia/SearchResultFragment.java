@@ -1,5 +1,6 @@
 package net.dheera.picopedia;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.wearable.view.CardFragment;
 import android.view.LayoutInflater;
@@ -16,15 +17,27 @@ public class SearchResultFragment extends CardFragment {
     private static String summary;
     private static String url;
 
+
     ViewGroup mRootView;
     @Override
     public View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(R.layout.searchresult, null);
+        mRootView = (ViewGroup) inflater.inflate(R.layout.search_result, null);
         Bundle bundle = getArguments();
         TextView textTitle = (TextView) mRootView.findViewById(R.id.textTitle);
         textTitle.setText(bundle.getString(CardFragment.KEY_TITLE));
         TextView textSummary = (TextView) mRootView.findViewById(R.id.textSummary);
         textSummary.setText(bundle.getString(CardFragment.KEY_TEXT));
+        final String url = bundle.getString("url");
+        mRootView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.instance(), WikipediaActivity.class);
+                Bundle b = new Bundle();
+                b.putString("url", url);
+                intent.putExtras(b);
+                startActivity(intent);
+            }
+        });
         return mRootView;
     }
 
@@ -32,7 +45,7 @@ public class SearchResultFragment extends CardFragment {
         Bundle bundle = new Bundle();
         bundle.putString(CardFragment.KEY_TITLE, title);
         bundle.putString(CardFragment.KEY_TEXT, summary);
-        // bundle.putString(CardFragment.KEY_ICON_RESOURCE, icon);
+        bundle.putString("url", url);
         SearchResultFragment f = new SearchResultFragment();
         f.setArguments(bundle);
         return f;

@@ -4,29 +4,30 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.provider.Browser;
 import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
 import android.view.Display;
 import android.view.WindowManager;
-import android.widget.ImageView;
+import android.widget.TextView;
 
 /**
  * Created by dheera on 8/2/14.
  */
-public class BrowserActivity extends Activity {
+public class WikipediaActivity extends Activity {
 
-        private static final String TAG = "picopedia.BrowserActivity";
+        private static final String TAG = "picopedia.WikipediaActivity";
         private static final boolean D = true;
-        private static BrowserActivity self;
+        private static WikipediaActivity self;
 
-        GridViewPager mGridViewPager;
-        SearchAdapter mSearchAdapter;
+        private static WikipediaAdapter mWikipediaAdapter;
+        private static GridViewPager mGridViewPager;
 
         public static int screenWidth = 0;
         public static int screenHeight = 0;
 
-        public static BrowserActivity instance() {
+        private static String url = null;
+
+        public static WikipediaActivity instance() {
             if(self != null) {
                 return self;
             }
@@ -37,7 +38,7 @@ public class BrowserActivity extends Activity {
         protected void onCreate(Bundle savedInstanceState) {
             self = this;
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.browser);
+            setContentView(R.layout.wikipedia);
 
             WindowManager wm = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
             Display display = wm.getDefaultDisplay();
@@ -46,15 +47,16 @@ public class BrowserActivity extends Activity {
             screenWidth = size.x;
             screenHeight = size.y;
 
-            final WatchViewStub stub = (WatchViewStub) findViewById(R.id.watch_view_stub);
-            stub.setOnLayoutInflatedListener(new WatchViewStub.OnLayoutInflatedListener() {
-                @Override
-                public void onLayoutInflated(WatchViewStub stub) {
-                    mSearchAdapter = new SearchAdapter(self, getFragmentManager(), null);
-                    // mGridViewPager = (GridViewPager) findViewById(R.id.pager);
-                    // mGridViewPager.setAdapter(mWikiAdapter);
-                }
-            });
+            Bundle b = getIntent().getExtras();
+            url = b.getString("url");
+
+
+            TextView mTextView = (TextView) findViewById(R.id.textView);
+            mTextView.setText(url);
+
+            mWikipediaAdapter = new WikipediaAdapter(self, getFragmentManager(), null);
+            mGridViewPager = (GridViewPager) findViewById(R.id.pager);
+            mGridViewPager.setAdapter(mWikipediaAdapter);
 
             // poke it to create the instance and get the GoogleApiClient
             ProxyClient.instance(this);

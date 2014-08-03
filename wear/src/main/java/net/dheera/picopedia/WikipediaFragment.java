@@ -8,11 +8,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class BrowserFragment extends Fragment {
+public class WikipediaFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View contentView = inflater.inflate(R.layout.browser, container, false);
+        View contentView = inflater.inflate(R.layout.wikipedia, container, false);
 
         SearchAdapter mSearchAdapter = new SearchAdapter(MainActivity.instance(), getFragmentManager(), null);
         GridViewPager mGridViewPager = (GridViewPager) contentView.findViewById(R.id.pager);
