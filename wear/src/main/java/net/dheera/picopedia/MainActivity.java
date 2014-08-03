@@ -99,8 +99,8 @@ public class MainActivity extends Activity {
             String spokenText = results.get(0);
             try {
                 final String spokenTextEncoded = URLEncoder.encode(spokenText, "utf-8");
-                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+site:en.wikipedia.org+" + spokenTextEncoded;
-                ProxyClient.instance(this).get(url, new ProxyResultHandler() {
+                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+-%22may%20refer%20to%22+site:en.wikipedia.org+" + spokenTextEncoded;
+                ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
                     @Override
                     public void onResult(byte data[]) {
                         Log.d(TAG, String.format("onResult(%d bytes)", data.length));
@@ -111,39 +111,30 @@ public class MainActivity extends Activity {
                             for(int i=0;i<results.length();i++) {
                                 JSONObject result = results.getJSONObject(i);
                                 SearchAdapter.SearchResult outresult = mSearchAdapter.newSearchResult();
-
                                 // "Software <b>testing</b> - Wikipedia, the free encyclopedia" -> "Software testing"
                                 outresult.title = Html.fromHtml( result.getString("title").split(" - ")[0] ).toString();
                                 outresult.summary = Html.fromHtml( result.getString("content") ).toString();
                                 outresult.url = result.getString("url");
-                                outresults.add(outresult);
+                                if(  !outresult.title.contains("User:")
+                                  && !outresult.title.contains("Wikipedia:")
+                                  && !outresult.title.contains("File:")
+                                  && !outresult.title.contains("Category:")
+                                  && !outresult.title.contains("Image:")
+                                  && !outresult.title.contains("Template:")
+                                  && !outresult.title.contains("Special:")  ) {
+                                    outresults.add(outresult);
+                                }
                             }
 
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    // what i wish i could do but doesn't work
-
-                                    // mWikiAdapter.setSearchResults(outresults);
-                                    // mWikiAdapter.notifyDataSetChanged();
-
-                                    // hack-ish workaround until Google has a solution
+                                    // workaround because notifyDataSetChanged() doesn't work
+                                    // and crashes the GridViewPager
+                                    // if the number of rows changes
 
                                     mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
                                     mGridViewPager.setAdapter(mSearchAdapter);
-
-                                    // delay setCurrentItem because it will throw exceptions if you set it
-                                    // too fast, and there is no infrastructure to check when
-                                    // GridViewPager is done loading the Adapter and ready for the command
-                                    // ... so let's just hope it's ready within 500 ms
-/*
-                                    new Thread() { public void run() { try { // i wish we were using python ...
-                                        Thread.sleep(500);
-                                        runOnUiThread(new Runnable() { @Override public void run() {
-                                            mGridViewPager.setCurrentItem(1, 0, true);
-                                        }});
-                                    } catch(InterruptedException e) { e.printStackTrace(); } } }.start();
-                                    */
                                 }
                             });
 
@@ -157,21 +148,12 @@ public class MainActivity extends Activity {
                     }
                 });
             } catch(UnsupportedEncodingException e) {
-                // seriously ...
+                // seriously ... this is utf-8 we're talking about ...
                 e.printStackTrace();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
-
-
-    private final Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-
-        }
-    };
-
 
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {

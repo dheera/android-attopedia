@@ -11,6 +11,12 @@ import java.util.zip.GZIPOutputStream;
  */
 public class GZipper {
 
+    /**
+     * gzips a byte array and returns a byte array
+     * @param data uncompressed byte array
+     * @return compressed array
+     * @throws IOException
+     */
     public static byte[] compress(byte[] data) throws IOException {
         ByteArrayOutputStream os = new ByteArrayOutputStream(data.length);
         GZIPOutputStream gos = new GZIPOutputStream(os);
@@ -21,6 +27,12 @@ public class GZipper {
         return compressed;
     }
 
+    /**
+     * gunzips a byte array and returns a byte array
+     * @param compressed compressed byte array
+     * @return uncompressed array
+     * @throws IOException
+     */
     public static byte[] decompress(byte[] compressed) throws IOException {
         final int BUFFER_SIZE = 32;
         ByteArrayInputStream is = new ByteArrayInputStream(compressed);

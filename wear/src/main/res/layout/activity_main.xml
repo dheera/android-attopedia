@@ -6,8 +6,8 @@
     android:id="@+id/watch_view_stub"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:rectLayout="@layout/rect_activity_main"
-    app:roundLayout="@layout/round_activity_main"
+    app:rectLayout="@layout/search_main_rect"
+    app:roundLayout="@layout/search_main_round"
     tools:context=".MainActivity"
     tools:deviceIds="wear">
 </android.support.wearable.view.WatchViewStub>

@@ -3,15 +3,11 @@ package net.dheera.picopedia;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
 import android.support.wearable.view.CardFragment;
 import android.support.wearable.view.FragmentGridPagerAdapter;
 import android.support.wearable.view.ImageReference;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MenuItem;
-import android.view.View;
 
 import java.util.ArrayList;
 
@@ -20,7 +16,7 @@ public class SearchAdapter extends FragmentGridPagerAdapter {
     private static final boolean D = true;
 
     private final Context mContext;
-    public final SearchFragment mSearchFragment;
+    public final SearchBlankFragment mSearchBlankFragment;
 
     ArrayList<SearchResult> searchResults = null;
 
@@ -29,7 +25,7 @@ public class SearchAdapter extends FragmentGridPagerAdapter {
     public SearchAdapter(Context ctx, FragmentManager fm, ArrayList<SearchResult> s) {
         super(fm);
         mContext = ctx;
-        mSearchFragment = new SearchFragment();
+        mSearchBlankFragment = new SearchBlankFragment();
         searchResults = s;
     }
 
@@ -65,7 +61,7 @@ public class SearchAdapter extends FragmentGridPagerAdapter {
     public Fragment getFragment(int rowNum, int colNum) {
         Log.d("blah", String.format("getFragment(%d, %d)", rowNum, colNum));
         if(searchResults == null) {
-            return mSearchFragment;
+            return mSearchBlankFragment;
         } else {
                 SearchResult searchResult = searchResults.get(rowNum);
                 SearchResultFragment f = SearchResultFragment.newInstance(searchResult.title, searchResult.summary, searchResult.url);

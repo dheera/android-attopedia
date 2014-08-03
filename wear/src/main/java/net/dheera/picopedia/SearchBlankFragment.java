@@ -1,27 +1,21 @@
 package net.dheera.picopedia;
 
-import android.app.Application;
 import android.app.Fragment;
 import android.os.Bundle;
-import android.support.wearable.view.GridViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class WikipediaFragment extends Fragment {
+public class SearchBlankFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View contentView = inflater.inflate(R.layout.wikipedia, container, false);
-
-        SearchAdapter mSearchAdapter = new SearchAdapter(MainActivity.instance(), getFragmentManager(), null);
-        GridViewPager mGridViewPager = (GridViewPager) contentView.findViewById(R.id.pager);
-        mGridViewPager.setAdapter(mSearchAdapter);
+        View contentView = inflater.inflate(R.layout.search_fragment_blank, container, false);
 
         contentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                MainActivity.instance().beginSpeech();
             }
         });
         return contentView;

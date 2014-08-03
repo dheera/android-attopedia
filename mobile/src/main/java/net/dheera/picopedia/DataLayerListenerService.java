@@ -21,6 +21,12 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.InputStream;
 import java.util.Random;
@@ -35,6 +41,13 @@ public class DataLayerListenerService extends WearableListenerService {
 
     private static final String TAG = "picopedia/" + String.valueOf((new Random()).nextInt(10000));
     private static final boolean D = true;
+
+    // raw bytes of whatever URL is being requested
+    public static final int GETTER_RAW = 0;
+    // attempt to parse Wikipedia page and give back a nice JSON object
+    public static final int GETTER_WIKIPEDIA = 1;
+    // get image, resize to watch face size and recompress aggressively to WEBP
+    public static final int GETTER_IMAGE = 2;
 
     private static GoogleApiClient mGoogleApiClient = null;
     private static Node mWearableNode = null;
@@ -78,18 +91,6 @@ public class DataLayerListenerService extends WearableListenerService {
             } catch(InterruptedException e ) {
                 e.printStackTrace();
             }
-        }
-    }
-
-    private byte[] downloadUrl(String url) {
-        HttpGet httpGet = new HttpGet(url);
-        HttpClient httpclient = new DefaultHttpClient();
-        try {
-            HttpResponse response = httpclient.execute(httpGet);
-            return EntityUtils.toByteArray(response.getEntity());
-        } catch(Exception e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
@@ -175,16 +176,21 @@ public class DataLayerListenerService extends WearableListenerService {
                 return;
             }
             int requestId = scanner.nextInt();
+            if (!scanner.hasNextInt()) {
+                if (D) Log.d(TAG, "invalid message parameter");
+                return;
+            }
+            int getter = scanner.nextInt();
             if (!scanner.hasNext()) {
                 if (D) Log.d(TAG, "invalid message parameter");
                 return;
             }
             String url = scanner.next();
-            onMessageGet(requestId, url);
+            onMessageGet(requestId, url, getter);
         }
     }
 
-    private void onMessageGet(final int requestId, final String url) {
+    private void onMessageGet(final int requestId, final String url, final int getter) {
         if(D) Log.d(TAG, String.format("onMessageGet(%s)", url));
 
         InputStream is;
@@ -192,19 +198,103 @@ public class DataLayerListenerService extends WearableListenerService {
         new Thread(new Runnable() {
             public void run() {
                 try {
-                    try {
-                        byte[] outdata = downloadUrl(url);
-                        if(D) Log.d(TAG, String.format("read %d bytes", outdata.length));
-                        sendToWearable(String.format("response %d", requestId), GZipper.compress(outdata), null);
-                    } catch(Exception e) {
-                        e.printStackTrace();
-                    }
-
+                        byte[] outdata = null;
+                        // fetch
+                        if(getter == GETTER_RAW) {
+                            outdata = getRaw(url);
+                        } else if(getter == GETTER_WIKIPEDIA) {
+                            outdata = getWikipedia(url);
+                        }
+                        // and send
+                        if(outdata != null) {
+                            if (D) Log.d(TAG, String.format("read %d bytes", outdata.length));
+                            sendToWearable(String.format("response %d", requestId), GZipper.compress(outdata), null);
+                        }
                 } catch (Exception e) {
-                    Log.e(TAG, "onMessageGet: exception:", e);
+                    e.printStackTrace();
                 }
             }
         }).start();
+    }
+
+    private byte[] getRaw(String url) {
+        if(D) Log.d(TAG, String.format("getRaw(%s)", url));
+        HttpGet httpGet = new HttpGet(url);
+        HttpClient httpclient = new DefaultHttpClient();
+        try {
+            HttpResponse response = httpclient.execute(httpGet);
+            return EntityUtils.toByteArray(response.getEntity());
+        } catch(Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private byte[] getWikipedia(String url) {
+        if(D) Log.d(TAG, String.format("getWikipedia(%s)", url));
+
+        url = "http://en.wikipedia.org/w/index.php?title=Boston&action=render";
+
+        final JSONObject json = new JSONObject();
+
+        try {
+            if (D) Log.d(TAG, "begin");
+            Document doc = Jsoup.connect(url).get();
+            Elements elements = doc.select("body").get(0).children();
+            String jsubsection_text = "";
+            JSONArray jsections = new JSONArray();
+            JSONObject jsection = new JSONObject();
+            JSONArray jsubsections = new JSONArray();
+            JSONObject jsubsection = new JSONObject();
+            jsection.put("title", "Overview");
+            jsubsection.put("title", "");
+            for (Element element : elements) {
+                if (element.tagName().equals("p") && !element.text().equals("")) {
+                    // we have text, add it to the current subsection
+                    jsubsection_text += element.text() + "\n\n";
+                }
+
+                if (element.tagName().equals("h2")) {
+                    // we have a new section ...
+                    // wrap up the subsection first
+                    if (!jsubsection_text.trim().equals("")) {
+                        jsubsection_text = jsubsection_text.replaceAll("\\[[0-9]*\\]", "");
+                        jsubsection.put("text", jsubsection_text);
+                        jsubsections.put(jsubsection);
+                    }
+                    // ... begin a new blank subsection
+                    jsubsection = new JSONObject();
+                    jsubsection_text = "";
+                    jsubsection.put("title", "");
+                    // then wrap up the section
+                    if (jsubsections.length() > 0) {
+                        jsection.put("subsections", jsubsections);
+                        jsections.put(jsection);
+                    }
+                    // ... and begin a new section
+                    jsubsections = new JSONArray();
+                    jsection = new JSONObject();
+                    jsection.put("title", element.text());
+                }
+                if (element.tagName().equals("h3")) {
+                    // we have a new subsection ...
+                    // wrap up the old subsection first
+                    if (!jsubsection_text.trim().equals("")) {
+                        jsubsection_text = jsubsection_text.replaceAll("\\[[0-9]*\\]", "");
+                        jsubsection.put("text", jsubsection_text);
+                        jsubsections.put(jsubsection);
+                    }
+                    // ... and begin an new subsection
+                    jsubsection = new JSONObject();
+                    jsubsection_text = "";
+                    jsubsection.put("title", element.text());
+                }
+            }
+            return jsections.toString().getBytes();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
 

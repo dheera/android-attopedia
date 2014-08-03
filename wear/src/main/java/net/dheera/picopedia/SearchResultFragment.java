@@ -13,15 +13,11 @@ import android.widget.TextView;
  */
 public class SearchResultFragment extends CardFragment {
 
-    private static String title;
-    private static String summary;
-    private static String url;
-
-
     ViewGroup mRootView;
+
     @Override
     public View onCreateContentView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        mRootView = (ViewGroup) inflater.inflate(R.layout.search_result, null);
+        mRootView = (ViewGroup) inflater.inflate(R.layout.search_card_result, null);
         Bundle bundle = getArguments();
         TextView textTitle = (TextView) mRootView.findViewById(R.id.textTitle);
         textTitle.setText(bundle.getString(CardFragment.KEY_TITLE));

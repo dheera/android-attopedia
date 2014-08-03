@@ -24,11 +24,25 @@ import java.util.Scanner;
 public class ProxyClient {
     private static final String TAG = "picopedia.ProxyClient";
     private static final boolean D = true;
-
-    private static ProxyClient instance;
     private static Context context;
+
+    // raw bytes of whatever URL is being requested
+    public static final int GETTER_RAW = 0;
+    // attempt to parse Wikipedia page and give back a nice JSON object
+    public static final int GETTER_WIKIPEDIA = 1;
+    // get image, resize to watch face size and recompress aggressively to WEBP
+    public static final int GETTER_IMAGE = 2;
+
+    // track our instance since the entire app can share one ProxyClient
+    private static ProxyClient instance;
+
+    // tracks result data for requestIds
     private static HashMap requestResults;
 
+    // used to generate unique requestIds
+    // requestIds are sent to the phone with every get request
+    // and returned back with the results so they can be tracked
+    // in the case of multiple simultaneous requests
     private static int requestCounter = 0;
 
     private GoogleApiClient mGoogleApiClient = null;
@@ -42,6 +56,7 @@ public class ProxyClient {
     }
 
     public ProxyClient(Context c) {
+        instance = this;
         context = c;
         requestResults = new HashMap<String, byte[]>();
         connect();
@@ -128,6 +143,11 @@ public class ProxyClient {
         } else {
             if(D) Log.d(TAG, "ERROR: tried to send message before device was found");
         }
+
+        if(mPhoneNode == null || !mGoogleApiClient.isConnected()) {
+            // try to reconnect ... just in case of sporadic disconnects or bugs crashing the GoogleApiClient
+            connect();
+        }
     }
 
     private void onMessageResponse(int requestId, byte[] data) {
@@ -136,16 +156,17 @@ public class ProxyClient {
             requestResults.put(requestId, GZipper.decompress(data));
         } catch(IOException e) {
             e.printStackTrace();
+            requestResults.put(requestId, new String("").getBytes());
         }
     }
 
-    public void get(final String url, final ProxyResultHandler mResultHandler) {
+    public void get(final String url, int getter , final ProxyResultHandler mResultHandler) {
         if(D) Log.d(TAG, String.format("get(%s)", url));
 
-        final int timeoutMax = 20; // in seconds
+        final int timeoutMax = 30; // in seconds
         final int requestId = requestCounter++; // unique id per get request; phone will provide back the id upon result
         requestResults.put(requestId, null);
-        sendToPhone(String.format("get %d %s", requestId, url), null, null);
+        sendToPhone(String.format("get %d %d %s", requestId, getter, url), null, null);
 
         new Thread() {
             public void run() {
@@ -161,7 +182,7 @@ public class ProxyClient {
                 }
                 if(requestResults.get(requestId) == null) {
                     // timed out, give up
-                    Log.d(TAG, "get: timed out");
+                    if(D) Log.d(TAG, "get: timed out");
                     mResultHandler.onFail();
                     requestResults.remove(requestId);
                 } else {
