@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="SearchResultTitle">
+        <item name="android:textColor">#000000</item>
+    </style>
+    <style name="SearchResultSummary">
+        <item name="android:textColor">#909090</item>
+    </style>
+</resources>
