@@ -10,7 +10,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/imageView"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:scaleType="centerCrop"
+        android:background="@color/light_grey" />
 
     <TextView
         android:layout_width="match_parent"
@@ -20,9 +22,10 @@
         android:id="@+id/textView"
         android:layout_gravity="center"
         style="@style/WikipediaSectionTitle"
-        android:background="@color/white"
-        android:textAlignment="center"
+        android:background="@color/WikipediaSectionTitleBackground"
         android:paddingTop="8dip"
-        android:paddingBottom="8dip" />
+        android:paddingBottom="8dip"
+        android:paddingLeft="16dip"
+        android:paddingRight="16dip" />
 
 </FrameLayout>

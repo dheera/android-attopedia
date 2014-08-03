@@ -29,6 +29,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -233,7 +235,23 @@ public class DataLayerListenerService extends WearableListenerService {
     private byte[] getWikipedia(String url) {
         if(D) Log.d(TAG, String.format("getWikipedia(%s)", url));
 
-        url = "http://en.wikipedia.org/w/index.php?title=Boston&action=render";
+        // force URL for testing only
+        // url = "http://en.wikipedia.org/w/index.php?title=Boston&action=render";
+
+        // get the title of the page from the URL
+        String articleTitle = "";
+        int i = url.lastIndexOf("wiki/");
+        if(i != -1) {
+            try {
+                articleTitle = URLDecoder.decode(url.substring(i + 5), "utf-8");
+                articleTitle = articleTitle.replace("_", " ");
+            } catch(UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+
+        // convert URL to simpler template version that doesn't have all the MediaWiki chrome
+        url = url + "?action=render";
 
         final JSONObject json = new JSONObject();
 
@@ -248,13 +266,23 @@ public class DataLayerListenerService extends WearableListenerService {
             JSONObject jsubsection = new JSONObject();
 
             // first section
-            jsection.put("title", "Overview");
+            if(articleTitle != "") {
+                jsection.put("title", articleTitle);
+            } else {
+                jsection.put("title", "Overview");
+            }
             try {
-                // todo: rewrite this to check length of select result
-                String image_src = doc.select("img").get(0).attr("abs:src");
+                String image_src = "";
+                for(Element e: doc.select("img")) {
+                    // we don't want to use some tiny icon as the background image
+                    if( Integer.parseInt(e.attr("width"))>64 || Integer.parseInt(e.attr("height"))>64 ) {
+                        image_src = e.attr("abs:src");
+                        break;
+                    }
+                }
                 jsection.put("image_url", image_src);
             } catch(Exception e) {
-                // todo: (see above) we just don't have an image for this article
+                e.printStackTrace();
             }
 
             // first section's subsection

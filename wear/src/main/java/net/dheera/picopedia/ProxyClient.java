@@ -23,6 +23,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -177,7 +179,7 @@ public class ProxyClient {
         if(D) Log.d(TAG, String.format("get(%s)", url));
 
         final String cacheKey = SHA1(String.format("get %d %s", getter, url).getBytes());
-        final File cacheFile = new File(cacheDir, cacheKey);
+        final File cacheFile = new File(cacheDir, cacheKey + ".cache");
 
         if(cacheFile.exists()) {
             // we have it cached, fetch it from the filesystem
@@ -223,7 +225,7 @@ public class ProxyClient {
                         e.printStackTrace();
                     }
                 }
-                if(requestResults.get(requestId) == null) {
+                if(requestResults.get(requestId) == null || ((byte[])requestResults.get(requestId)).length == 0 ) {
                     // timed out, give up
                     if(D) Log.d(TAG, "get: timed out");
                     mResultHandler.onFail();
@@ -243,6 +245,22 @@ public class ProxyClient {
                     // ... and trigger the result handler
                     mResultHandler.onResult(data);
                     requestResults.remove(requestId);
+                    // ... clean up old cache files if needed
+                    File[] files = cacheDir.listFiles();
+                    if(files.length > 80) { // trigger cleanup if we have more than 80 files
+                        Arrays.sort(files, new Comparator<File>() {
+                            public int compare(File f1, File f2) {
+                                return Long.valueOf(f1.lastModified()).compareTo(f2.lastModified());
+                            }
+                        });
+                        // but only delete the oldest 20
+                        for(int i=0;i<files.length - 60;i++) {
+                            if(files[i].getName().endsWith(".cache")) {
+                                if(D) Log.d(TAG, String.format("deleting old cache file %s (mtime = %d)", files[i].getName(), files[i].lastModified()));
+                                files[i].delete();
+                            }
+                        }
+                    }
                 }
             }
         }.start();
