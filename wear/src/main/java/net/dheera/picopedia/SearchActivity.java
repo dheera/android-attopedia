@@ -8,8 +8,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.speech.RecognizerIntent;
 import android.support.wearable.view.GridViewPager;
 import android.support.wearable.view.WatchViewStub;
@@ -28,11 +26,11 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity {
+public class SearchActivity extends Activity {
 
-    private static final String TAG = "picopedia.MainActivity";
+    private static final String TAG = "picopedia.SearchActivity";
     private static final boolean D = true;
-    private static MainActivity self;
+    private static SearchActivity self;
 
     GridViewPager mGridViewPager;
     SearchAdapter mSearchAdapter;
@@ -40,7 +38,7 @@ public class MainActivity extends Activity {
     public static int screenWidth = 0;
     public static int screenHeight = 0;
 
-    public static MainActivity instance() {
+    public static SearchActivity instance() {
         if(self != null) {
             return self;
         }
@@ -70,7 +68,7 @@ public class MainActivity extends Activity {
                 mGridViewPager.setAdapter(mSearchAdapter);
                 ImageView mImageView = (ImageView) findViewById(R.id.imageView);
                 mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
-                        R.drawable.searchback, MainActivity.instance().screenWidth, MainActivity.instance().screenHeight));
+                        R.drawable.searchback, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
             }
         });
 

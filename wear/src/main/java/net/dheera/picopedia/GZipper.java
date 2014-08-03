@@ -7,7 +7,8 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * Created by dheera on 8/2/14.
+ * Convenient static methods for compressing and decompressing
+ * byte arrays without having to deal with all the stream mess.
  */
 public class GZipper {
 

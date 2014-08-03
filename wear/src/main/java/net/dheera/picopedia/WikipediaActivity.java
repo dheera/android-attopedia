@@ -16,7 +16,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 /**
- * Created by dheera on 8/2/14.
+ * This activity is to browse an actual wikipedia page and
+ * is launched by a SearchResultFragment.
+ * It requires an url argument in order to function.
+ *
+ * The hope is that perhaps one day in the future, Google Now
+ * for Android Wear will support intent filters and can directly
+ * launch this activity from the Google Now search results.
  */
 public class WikipediaActivity extends Activity {
 

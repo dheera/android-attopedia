@@ -3,14 +3,15 @@ package net.dheera.picopedia;
 import android.content.Context;
 import android.graphics.Point;
 import android.support.wearable.view.GridViewPager;
-import android.util.AttributeSet;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 /**
- * Created by dheera on 8/3/14.
+ * Custom GridViewPager which disables vertical scrolling for everything
+ * except the first column. Other columns will be using ScrollViews and
+ * we don't want the GridViewPager fighting with those ScrollViews.
+ * Users will have to go back to the first column to switch between sections.
  */
 public class CustomGridViewPager extends GridViewPager {
     private GestureDetector mGestureDetector;

@@ -15,7 +15,7 @@
         android:id="@+id/textView"
         android:layout_gravity="center_horizontal|top" />
 
-    <!-- create programatically instead
+    <!-- create programatically instead since we need a CustomGridViewPager
     <android.support.wearable.view.GridViewPager
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/pager"

@@ -12,6 +12,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
 
 public class WikipediaAdapter extends FragmentGridPagerAdapter {
     private static final String TAG = "picopedia.WikipediaAdapter";
@@ -62,7 +65,11 @@ public class WikipediaAdapter extends FragmentGridPagerAdapter {
                     String title = jsection.has("title") ? jsection.getString("title") : "";
                     return WikipediaSectionFragment.newInstance(title, image_url);
                 } catch (JSONException e) {
-                    return WikipediaSectionFragment.newInstance("Error", "");
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
+                    e.printStackTrace();
+                    return WikipediaErrorFragment.newInstance("Error loading page", sw.toString());
                 }
             } else {
                 try {
@@ -70,8 +77,11 @@ public class WikipediaAdapter extends FragmentGridPagerAdapter {
                     if (D) Log.d(TAG, jsubsection.toString());
                     return WikipediaSubsectionFragment.newInstance(jsubsection.getString("title"), jsubsection.getString("text"));
                 } catch (JSONException e) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter pw = new PrintWriter(sw);
+                    e.printStackTrace(pw);
                     e.printStackTrace();
-                    return WikipediaSectionFragment.newInstance("Error", "");
+                    return WikipediaErrorFragment.newInstance("Error loading page", sw.toString());
                 }
             }
         }

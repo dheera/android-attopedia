@@ -9,6 +9,9 @@
     <style name="WikipediaSectionTitle">
         <item name="android:textColor">#303030</item>
     </style>
+    <style name="WikipediaErrorTitle">
+        <item name="android:textColor">#FF0000</item>
+    </style>
     <style name="WikipediaSubsectionTitle">
         <item name="android:textColor">#A0A0A0</item>
         <item name="android:fontFamily">sans-serif-condensed</item>

@@ -15,7 +15,7 @@ public class SearchBlankFragment extends Fragment {
         contentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity.instance().beginSpeech();
+                SearchActivity.instance().beginSpeech();
             }
         });
         return contentView;

@@ -27,7 +27,7 @@ public class SearchResultFragment extends CardFragment {
         mRootView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.instance(), WikipediaActivity.class);
+                Intent intent = new Intent(SearchActivity.instance(), WikipediaActivity.class);
                 Bundle b = new Bundle();
                 b.putString("url", url);
                 intent.putExtras(b);

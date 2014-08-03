@@ -4,15 +4,11 @@ import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.wearable.view.CardFragment;
-import android.support.wearable.view.GridViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import java.lang.reflect.Proxy;
 
 public class WikipediaSectionFragment extends Fragment {
 
@@ -30,7 +26,7 @@ public class WikipediaSectionFragment extends Fragment {
 
         // fetch the background image asynchronously
 
-        ProxyClient mProxyClient = ProxyClient.instance(MainActivity.instance());
+        ProxyClient mProxyClient = ProxyClient.instance(SearchActivity.instance());
 
         String image_url = bundle.getString("image_url");
         if(!image_url.equals("")) {
