@@ -53,14 +53,16 @@ public class WikipediaAdapter extends FragmentGridPagerAdapter {
     public Fragment getFragment(int rowNum, int colNum) {
         Log.d("blah", String.format("getFragment(%d, %d)", rowNum, colNum));
         if(jsections == null) {
-            return CardFragment.create("miao", "haha");
+            return WikipediaSectionFragment.newInstance("Loading...", "");
         } else {
             if(colNum == 0) {
                 try {
                     JSONObject jsection = jsections.getJSONObject(rowNum);
-                    return WikipediaSectionFragment.newInstance(jsection.getString("title"));
+                    String image_url = jsection.has("image_url") ? jsection.getString("image_url") : "";
+                    String title = jsection.has("title") ? jsection.getString("title") : "";
+                    return WikipediaSectionFragment.newInstance(title, image_url);
                 } catch (JSONException e) {
-                    return CardFragment.create("miao", "hahaha");
+                    return WikipediaSectionFragment.newInstance("Error", "");
                 }
             } else {
                 try {
@@ -69,7 +71,7 @@ public class WikipediaAdapter extends FragmentGridPagerAdapter {
                     return WikipediaSubsectionFragment.newInstance(jsubsection.getString("title"), jsubsection.getString("text"));
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    return CardFragment.create("miao", "hahaha");
+                    return WikipediaSectionFragment.newInstance("Error", "");
                 }
             }
         }

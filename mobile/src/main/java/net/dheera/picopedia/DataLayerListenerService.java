@@ -200,7 +200,7 @@ public class DataLayerListenerService extends WearableListenerService {
                 try {
                         byte[] outdata = null;
                         // fetch
-                        if(getter == GETTER_RAW) {
+                        if(getter == GETTER_RAW || getter == GETTER_IMAGE) {
                             outdata = getRaw(url);
                         } else if(getter == GETTER_WIKIPEDIA) {
                             outdata = getWikipedia(url);
@@ -246,8 +246,20 @@ public class DataLayerListenerService extends WearableListenerService {
             JSONObject jsection = new JSONObject();
             JSONArray jsubsections = new JSONArray();
             JSONObject jsubsection = new JSONObject();
+
+            // first section
             jsection.put("title", "Overview");
+            try {
+                // todo: rewrite this to check length of select result
+                String image_src = doc.select("img").get(0).attr("abs:src");
+                jsection.put("image_url", image_src);
+            } catch(Exception e) {
+                // todo: (see above) we just don't have an image for this article
+            }
+
+            // first section's subsection
             jsubsection.put("title", "");
+
             for (Element element : elements) {
                 if (element.tagName().equals("p") && !element.text().equals("")) {
                     // we have text, add it to the current subsection
