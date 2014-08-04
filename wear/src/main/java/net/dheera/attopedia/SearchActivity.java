@@ -28,11 +28,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This is a (Google Now)-like voice search interface and serves
  * as the main activity for this package.
- *
+ * <p/>
  * At the time of this writing Google Now does not support intent
  * filters, so we unfortunately cannot launch the WikipediaActivity
  * from Google Now directly.
@@ -51,7 +52,7 @@ public class SearchActivity extends Activity {
     public static int screenHeight = 0;
 
     public static SearchActivity instance() {
-        if(self != null) {
+        if (self != null) {
             return self;
         }
         return new SearchActivity();
@@ -80,13 +81,13 @@ public class SearchActivity extends Activity {
                 // set the progress bar to 3/4 of the screen
                 mFrameLayout_progress = (FrameLayout) findViewById(R.id.frameLayout_progress);
                 ViewGroup.LayoutParams l = mFrameLayout_progress.getLayoutParams();
-                l.height = screenHeight*3/4;
+                l.height = screenHeight * 3 / 4;
                 mFrameLayout_progress.setLayoutParams(l);
 
                 // set the "search again" hot area to 1/4 of the screen
                 // (the first search result card will be 3/4 of the screen)
                 l = mImageView_again.getLayoutParams();
-                l.height = screenHeight/4;
+                l.height = screenHeight / 4;
                 mImageView_again.setLayoutParams(l);
 
                 mSearchAdapter = new SearchAdapter(self, getFragmentManager(), null);
@@ -100,7 +101,7 @@ public class SearchActivity extends Activity {
 
                     @Override
                     public void onPageSelected(int i, int i2) {
-                        if(i==0 && i2==0) {
+                        if (i == 0 && i2 == 0) {
                             mImageView_again.setVisibility(View.VISIBLE);
                         } else {
                             mImageView_again.setVisibility(View.GONE);
@@ -151,7 +152,10 @@ public class SearchActivity extends Activity {
             mFrameLayout_progress.setVisibility(View.VISIBLE);
             try {
                 final String spokenTextEncoded = URLEncoder.encode(spokenText, "utf-8");
-                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+-%22may%20refer%20to%22+site:en.wikipedia.org+" + spokenTextEncoded;
+                String baseUrl = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+-%22may%20refer%20to%22+site:";
+                String wikipediaUrl = Locale.getDefault().getLanguage() + ".wikipedia.org";
+                final String url = baseUrl + wikipediaUrl + "+" + spokenTextEncoded;
+                Log.d("URL", url);
                 ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
                     @Override
                     public void onResult(byte data[]) {
@@ -160,25 +164,25 @@ public class SearchActivity extends Activity {
                             JSONObject j = new JSONObject(new String(data));
                             JSONArray results = j.getJSONObject("responseData").getJSONArray("results");
                             final ArrayList<SearchAdapter.SearchResult> outresults = new ArrayList<SearchAdapter.SearchResult>();
-                            for(int i=0;i<results.length();i++) {
+                            for (int i = 0; i < results.length(); i++) {
                                 JSONObject result = results.getJSONObject(i);
                                 SearchAdapter.SearchResult outresult = mSearchAdapter.newSearchResult();
                                 // "Software <b>testing</b> - Wikipedia, the free encyclopedia" -> "Software testing"
-                                outresult.title = Html.fromHtml( result.getString("title").split(" - ")[0] ).toString();
-                                outresult.summary = Html.fromHtml( result.getString("content") ).toString();
-                                outresult.url = result.getString("url");
-                                if(  !outresult.title.contains("User:")
-                                  && !outresult.title.contains("Wikipedia:")
-                                  && !outresult.title.contains("File:")
-                                  && !outresult.title.contains("Category:")
-                                  && !outresult.title.contains("Image:")
-                                  && !outresult.title.contains("Template:")
-                                  && !outresult.title.contains("Special:")  ) {
+                                outresult.title = Html.fromHtml(result.getString("title").split(" - ")[0].split(" – ")[0]).toString();
+                                outresult.summary = Html.fromHtml(result.getString("content")).toString();
+                                outresult.url = result.getString("unescapedUrl");
+                                if (!outresult.title.contains("User:")
+                                        && !outresult.title.contains("Wikipedia:")
+                                        && !outresult.title.contains("File:")
+                                        && !outresult.title.contains("Category:")
+                                        && !outresult.title.contains("Image:")
+                                        && !outresult.title.contains("Template:")
+                                        && !outresult.title.contains("Special:")) {
                                     outresults.add(outresult);
                                 }
                             }
 
-                            if(outresults.size()>0) {
+                            if (outresults.size() > 0) {
                                 runOnUiThread(new Runnable() {
                                     @Override
                                     public void run() {
@@ -192,7 +196,7 @@ public class SearchActivity extends Activity {
                                     }
                                 });
                             }
-                        } catch(JSONException e) {
+                        } catch (JSONException e) {
                             e.printStackTrace();
                             runOnUiThread(new Runnable() {
                                 @Override
@@ -202,6 +206,7 @@ public class SearchActivity extends Activity {
                             });
                         }
                     }
+
                     @Override
                     public void onFail() {
                         Log.d(TAG, "onFail");
@@ -213,7 +218,7 @@ public class SearchActivity extends Activity {
                         });
                     }
                 });
-            } catch(UnsupportedEncodingException e) {
+            } catch (UnsupportedEncodingException e) {
                 // seriously ... this is utf-8 we're talking about ...
                 e.printStackTrace();
             }
@@ -236,6 +241,7 @@ public class SearchActivity extends Activity {
         options.inJustDecodeBounds = false;
         return BitmapFactory.decodeResource(res, resId, options);
     }
+
     public static int calculateInSampleSize(
             BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
