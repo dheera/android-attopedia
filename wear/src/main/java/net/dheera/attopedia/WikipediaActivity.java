@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.wearable.view.GridViewPager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -80,6 +81,7 @@ public class WikipediaActivity extends Activity {
                 @Override
                 public void onResult(byte data[]) {
                     try {
+                        Log.d("PEDA", new String(data));
                         final JSONArray jsections = new JSONArray(new String(data));
                         runOnUiThread(new Runnable() {
                             @Override
