@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -32,7 +32,7 @@ import java.util.Scanner;
  * Connects to DataLayerListenerService on a phone to fetch data from the web.
  */
 public class ProxyClient {
-    private static final String TAG = "picopedia.ProxyClient";
+    private static final String TAG = "attopedia.ProxyClient";
     private static final boolean D = false;
     private static Context context;
 

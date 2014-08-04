@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 /**
  * Methods to asynchronously deal with the output of ProxyClient.

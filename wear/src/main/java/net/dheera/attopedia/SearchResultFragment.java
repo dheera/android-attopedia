@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.content.Intent;
 import android.os.Bundle;

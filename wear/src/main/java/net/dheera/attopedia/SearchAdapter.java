@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -12,7 +12,7 @@ import android.view.Gravity;
 import java.util.ArrayList;
 
 public class SearchAdapter extends FragmentGridPagerAdapter {
-    private static final String TAG = "picopedia.WikiAdapter";
+    private static final String TAG = "attopedia.WikiAdapter";
     private static final boolean D = false;
 
     private final Context mContext;

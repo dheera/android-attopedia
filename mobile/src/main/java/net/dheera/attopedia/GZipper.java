@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

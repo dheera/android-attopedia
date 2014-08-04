@@ -1,6 +1,5 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -40,7 +39,7 @@ import java.util.List;
  */
 public class SearchActivity extends Activity {
 
-    private static final String TAG = "picopedia.SearchActivity";
+    private static final String TAG = "attopedia.SearchActivity";
     private static final boolean D = false;
     private static SearchActivity self;
 

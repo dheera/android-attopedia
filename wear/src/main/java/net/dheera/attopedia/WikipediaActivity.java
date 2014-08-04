@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,11 +6,9 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.wearable.view.GridViewPager;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -26,7 +24,7 @@ import org.json.JSONException;
  */
 public class WikipediaActivity extends Activity {
 
-        private static final String TAG = "picopedia.WikipediaActivity";
+        private static final String TAG = "attopedia.WikipediaActivity";
         private static final boolean D = true;
         private static WikipediaActivity self;
 

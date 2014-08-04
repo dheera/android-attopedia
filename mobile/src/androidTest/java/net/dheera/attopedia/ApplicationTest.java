@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

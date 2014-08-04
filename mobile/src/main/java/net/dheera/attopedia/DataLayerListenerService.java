@@ -1,4 +1,4 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Service;
 import android.content.Intent;
@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class DataLayerListenerService extends WearableListenerService {
 
-    private static final String TAG = "picopedia/" + String.valueOf((new Random()).nextInt(10000));
+    private static final String TAG = "attopedia/" + String.valueOf((new Random()).nextInt(10000));
     private static final boolean D = true;
 
     // raw bytes of whatever URL is being requested

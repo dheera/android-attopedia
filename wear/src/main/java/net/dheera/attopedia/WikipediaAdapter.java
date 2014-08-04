@@ -1,11 +1,9 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
-import android.support.wearable.view.CardFragment;
 import android.support.wearable.view.FragmentGridPagerAdapter;
-import android.support.wearable.view.ImageReference;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -17,7 +15,7 @@ import java.io.StringWriter;
 
 
 public class WikipediaAdapter extends FragmentGridPagerAdapter {
-    private static final String TAG = "picopedia.WikipediaAdapter";
+    private static final String TAG = "attopedia.WikipediaAdapter";
     private static final boolean D = false;
 
     private final Context mContext;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Picopedia</string>
+    <string name="app_name">Attopedia</string>
     <string name="hello_world">Please open this application from your Android Wear smartwatch.</string>
     <string name="action_settings">Settings</string>
 

@@ -1,12 +1,9 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.support.wearable.view.CardFragment;
-import android.support.wearable.view.GridViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

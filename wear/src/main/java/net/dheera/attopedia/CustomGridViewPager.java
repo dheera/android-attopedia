@@ -1,11 +1,9 @@
-package net.dheera.picopedia;
+package net.dheera.attopedia;
 
 import android.content.Context;
 import android.graphics.Point;
 import android.support.wearable.view.GridViewPager;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 
 /**
  * Custom GridViewPager which disables vertical scrolling for everything
