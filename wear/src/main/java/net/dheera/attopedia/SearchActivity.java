@@ -151,7 +151,7 @@ public class SearchActivity extends Activity {
             mFrameLayout_progress.setVisibility(View.VISIBLE);
             try {
                 final String spokenTextEncoded = URLEncoder.encode(spokenText, "utf-8");
-                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22may%20refer%20to%22+-%22may%20refer%20to%22+site:en.wikipedia.org+" + spokenTextEncoded;
+                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22disambiguation+page%22+site:en.wikipedia.org+" + spokenTextEncoded;
                 ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
                     @Override
                     public void onResult(byte data[]) {
@@ -171,8 +171,12 @@ public class SearchActivity extends Activity {
                                   && !outresult.title.contains("Wikipedia:")
                                   && !outresult.title.contains("File:")
                                   && !outresult.title.contains("Category:")
+                                  && !outresult.title.contains("Portal:")
                                   && !outresult.title.contains("Image:")
                                   && !outresult.title.contains("Template:")
+                                  && !outresult.url.contains("wiki/wikt")
+                                  && !outresult.url.contains("wiki/voy:")
+                                  && !outresult.url.contains("wiki/Wiktionary")
                                   && !outresult.title.contains("Special:")  ) {
                                     outresults.add(outresult);
                                 }
