@@ -5,6 +5,7 @@ import android.content.Context;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.wearable.view.GridViewPager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -76,9 +77,16 @@ public class WikipediaActivity extends Activity {
             Bundle b = getIntent().getExtras();
             url = b.getString("url");
 
-            ProxyClient.instance(this).get(url, ProxyClient.GETTER_WIKIPEDIA, new ProxyResultHandler() {
+            // use ProxyClient.GETTER_WIKIPEDIA if using the Wikipedia URL directly
+            // use ProxyClient.GETTER_RAW if using http://attopedia.dheera.net/ server-side parser
+            // (parsing on phones with Jsoup is slow)
+            // source code for server-side parser at http://github.com/dheera/attopedia-server
+
+            Log.d(TAG, "Getting " + url);
+            ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
                 @Override
                 public void onResult(byte data[]) {
+                    Log.d(TAG, "result: " + new String(data));
                     try {
                         final JSONArray jsections = new JSONArray(new String(data));
                         runOnUiThread(new Runnable() {
@@ -91,6 +99,13 @@ public class WikipediaActivity extends Activity {
                         });
                     } catch(JSONException e) {
                         e.printStackTrace();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mFrameLayout_retry.setVisibility(View.VISIBLE);
+                                mFrameLayout_progress.setVisibility(View.GONE);
+                            }
+                        });
                     }
                 }
                 @Override
@@ -116,7 +131,7 @@ public class WikipediaActivity extends Activity {
     public void onClickRetry(View v) {
         mFrameLayout_retry.setVisibility(View.GONE);
         mFrameLayout_progress.setVisibility(View.VISIBLE);
-        ProxyClient.instance(this).get(url, ProxyClient.GETTER_WIKIPEDIA, new ProxyResultHandler() {
+        ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
             @Override
             public void onResult(byte data[]) {
                 try {
@@ -131,7 +146,24 @@ public class WikipediaActivity extends Activity {
                     });
                 } catch(JSONException e) {
                     e.printStackTrace();
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFrameLayout_retry.setVisibility(View.VISIBLE);
+                            mFrameLayout_progress.setVisibility(View.GONE);
+                        }
+                    });
                 }
+            }
+            @Override
+            public void onFail() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mFrameLayout_retry.setVisibility(View.VISIBLE);
+                        mFrameLayout_progress.setVisibility(View.GONE);
+                    }
+                });
             }
         });
     }

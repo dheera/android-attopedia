@@ -238,13 +238,15 @@ public class ProxyClient {
                     // we have data
                     // ... cache it
                     byte[] data = (byte[]) requestResults.get(requestId);
-                    try {
-                        BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cacheFile));
-                        bos.write(data);
-                        bos.flush();
-                        bos.close();
-                    } catch(Exception e) {
-                        e.printStackTrace();
+                    if(!new String(data).contains("500 Server Error")) {
+                        try {
+                            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cacheFile));
+                            bos.write(data);
+                            bos.flush();
+                            bos.close();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                     // ... and trigger the result handler
                     if(mResultHandler != null && data!= null) {

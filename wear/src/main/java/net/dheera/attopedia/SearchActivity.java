@@ -167,6 +167,11 @@ public class SearchActivity extends Activity {
                                 outresult.title = Html.fromHtml( result.getString("title").split(" - ")[0] ).toString();
                                 outresult.summary = Html.fromHtml( result.getString("content") ).toString();
                                 outresult.url = result.getString("url");
+
+                                // new server-side parser
+                                outresult.url = outresult.url.replace("https://", "http://attopedia.dheera.net/0/");
+                                outresult.url = outresult.url.replace("http://", "http://attopedia.dheera.net/0/");
+
                                 if(  !outresult.title.contains("User:")
                                   && !outresult.title.contains("Wikipedia:")
                                   && !outresult.title.contains("File:")
