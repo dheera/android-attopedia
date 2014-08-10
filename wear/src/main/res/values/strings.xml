@@ -3,4 +3,5 @@
 
     <string name="app_name">Attopedia</string>
 
+    <string name="hint">Search</string>
 </resources>

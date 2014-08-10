@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Picopedia.iml" filepath="$PROJECT_DIR$/Picopedia.iml" />
+      <module fileurl="file://$PROJECT_DIR$/android-attopedia.iml" filepath="$PROJECT_DIR$/android-attopedia.iml" />
       <module fileurl="file://$PROJECT_DIR$/mobile/mobile.iml" filepath="$PROJECT_DIR$/mobile/mobile.iml" />
       <module fileurl="file://$PROJECT_DIR$/wear/wear.iml" filepath="$PROJECT_DIR$/wear/wear.iml" />
     </modules>

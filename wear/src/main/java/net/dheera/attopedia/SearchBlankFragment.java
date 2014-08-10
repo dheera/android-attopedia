@@ -18,6 +18,15 @@ public class SearchBlankFragment extends Fragment {
                 SearchActivity.instance().beginSpeech();
             }
         });
+
+        contentView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                SearchActivity.instance().beginWrite();
+                return true;
+            }
+        });
+
         return contentView;
     }
 
