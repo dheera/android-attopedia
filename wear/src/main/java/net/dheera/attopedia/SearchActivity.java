@@ -120,6 +120,21 @@ public class SearchActivity extends Activity {
                     }
                 });
 
+                /*mImageView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        displayIMEActivity();
+                        return true;
+                    }
+                });*/
+                mImageView_again.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View view) {
+                        displayIMEActivity();
+                        return true;
+                    }
+                });
+
                 mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
                         R.drawable.searchback, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
             }
@@ -133,7 +148,12 @@ public class SearchActivity extends Activity {
         displaySpeechRecognizer();
     }
 
+    public void beginWrite() {
+        displayIMEActivity();
+    }
+
     private static final int SPEECH_REQUEST_CODE = 0;
+    private static final int IME_REQUEST_CODE = 1;
 
     private void displaySpeechRecognizer() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -142,78 +162,83 @@ public class SearchActivity extends Activity {
         startActivityForResult(intent, SPEECH_REQUEST_CODE);
     }
 
+    private void displayIMEActivity() {
+        Intent i = new Intent(this, IMEActivity.class);
+        startActivityForResult(i, IME_REQUEST_CODE);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == SPEECH_REQUEST_CODE && resultCode == RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
-            mFrameLayout_progress.setVisibility(View.VISIBLE);
-            try {
-                final String spokenTextEncoded = URLEncoder.encode(spokenText, "utf-8");
-                final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22disambiguation+page%22+site:en.wikipedia.org+" + spokenTextEncoded;
-                ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
-                    @Override
-                    public void onResult(byte data[]) {
-                        Log.d(TAG, String.format("onResult(%d bytes)", data.length));
-                        try {
-                            JSONObject j = new JSONObject(new String(data));
-                            JSONArray results = j.getJSONObject("responseData").getJSONArray("results");
-                            final ArrayList<SearchAdapter.SearchResult> outresults = new ArrayList<SearchAdapter.SearchResult>();
-                            for(int i=0;i<results.length();i++) {
-                                JSONObject result = results.getJSONObject(i);
-                                SearchAdapter.SearchResult outresult = mSearchAdapter.newSearchResult();
-                                // "Software <b>testing</b> - Wikipedia, the free encyclopedia" -> "Software testing"
-                                outresult.title = Html.fromHtml( result.getString("title").split(" - ")[0] ).toString();
-                                outresult.summary = Html.fromHtml( result.getString("content") ).toString();
-                                outresult.url = result.getString("url");
+        if (resultCode == RESULT_OK) {
+            if (requestCode == SPEECH_REQUEST_CODE) {
+                List<String> results = data.getStringArrayListExtra(
+                        RecognizerIntent.EXTRA_RESULTS);
+                String spokenText = results.get(0);
+                processData(spokenText);
+            } else if(requestCode == IME_REQUEST_CODE) {
+                String writtenText = data.getStringExtra(Intent.EXTRA_TEXT);
+                processData(writtenText);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
 
-                                // new server-side parser
-                                outresult.url = outresult.url.replace("https://", "http://attopedia.dheera.net/0/");
-                                outresult.url = outresult.url.replace("http://", "http://attopedia.dheera.net/0/");
+    private void processData(String data) {
+        mFrameLayout_progress.setVisibility(View.VISIBLE);
+        try {
+            final String spokenTextEncoded = URLEncoder.encode(data, "utf-8");
+            final String url = "http://ajax.googleapis.com/ajax/services/search/web?v=1.0&q=-%22disambiguation+page%22+site:en.wikipedia.org+" + spokenTextEncoded;
+            ProxyClient.instance(this).get(url, ProxyClient.GETTER_RAW, new ProxyResultHandler() {
+                @Override
+                public void onResult(byte data[]) {
+                    Log.d(TAG, String.format("onResult(%d bytes)", data.length));
+                    try {
+                        JSONObject j = new JSONObject(new String(data));
+                        JSONArray results = j.getJSONObject("responseData").getJSONArray("results");
+                        final ArrayList<SearchAdapter.SearchResult> outresults = new ArrayList<SearchAdapter.SearchResult>();
+                        for(int i=0;i<results.length();i++) {
+                            JSONObject result = results.getJSONObject(i);
+                            SearchAdapter.SearchResult outresult = mSearchAdapter.newSearchResult();
+                            // "Software <b>testing</b> - Wikipedia, the free encyclopedia" -> "Software testing"
+                            outresult.title = Html.fromHtml( result.getString("title").split(" - ")[0] ).toString();
+                            outresult.summary = Html.fromHtml( result.getString("content") ).toString();
+                            outresult.url = result.getString("url");
 
-                                if(  !outresult.title.contains("User:")
-                                  && !outresult.title.contains("Wikipedia:")
-                                  && !outresult.title.contains("File:")
-                                  && !outresult.title.contains("Category:")
-                                  && !outresult.title.contains("Portal:")
-                                  && !outresult.title.contains("Image:")
-                                  && !outresult.title.contains("Template:")
-                                  && !outresult.url.contains("wiki/wikt")
-                                  && !outresult.url.contains("wiki/voy:")
-                                  && !outresult.url.contains("wiki/Wiktionary")
-                                  && !outresult.title.contains("Special:")  ) {
-                                    outresults.add(outresult);
-                                }
+                            // new server-side parser
+                            outresult.url = outresult.url.replace("https://", "http://attopedia.dheera.net/0/");
+                            outresult.url = outresult.url.replace("http://", "http://attopedia.dheera.net/0/");
+
+                            if(  !outresult.title.contains("User:")
+                                    && !outresult.title.contains("Wikipedia:")
+                                    && !outresult.title.contains("File:")
+                                    && !outresult.title.contains("Category:")
+                                    && !outresult.title.contains("Portal:")
+                                    && !outresult.title.contains("Image:")
+                                    && !outresult.title.contains("Template:")
+                                    && !outresult.url.contains("wiki/wikt")
+                                    && !outresult.url.contains("wiki/voy:")
+                                    && !outresult.url.contains("wiki/Wiktionary")
+                                    && !outresult.title.contains("Special:")  ) {
+                                outresults.add(outresult);
                             }
+                        }
 
-                            if(outresults.size()>0) {
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        // workaround because notifyDataSetChanged() doesn't work
-                                        // and crashes the GridViewPager
-                                        // if the number of rows changes
-
-                                        mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
-                                        mGridViewPager.setAdapter(mSearchAdapter);
-                                        mFrameLayout_progress.setVisibility(View.GONE);
-                                    }
-                                });
-                            }
-                        } catch(JSONException e) {
-                            e.printStackTrace();
+                        if(outresults.size()>0) {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    // workaround because notifyDataSetChanged() doesn't work
+                                    // and crashes the GridViewPager
+                                    // if the number of rows changes
+
+                                    mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
+                                    mGridViewPager.setAdapter(mSearchAdapter);
                                     mFrameLayout_progress.setVisibility(View.GONE);
                                 }
                             });
                         }
-                    }
-                    @Override
-                    public void onFail() {
-                        Log.d(TAG, "onFail");
+                    } catch(JSONException e) {
+                        e.printStackTrace();
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -221,15 +246,23 @@ public class SearchActivity extends Activity {
                             }
                         });
                     }
-                });
-            } catch(UnsupportedEncodingException e) {
-                // seriously ... this is utf-8 we're talking about ...
-                e.printStackTrace();
-            }
+                }
+                @Override
+                public void onFail() {
+                    Log.d(TAG, "onFail");
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mFrameLayout_progress.setVisibility(View.GONE);
+                        }
+                    });
+                }
+            });
+        } catch(UnsupportedEncodingException e) {
+            // seriously ... this is utf-8 we're talking about ...
+            e.printStackTrace();
         }
-        super.onActivityResult(requestCode, resultCode, data);
     }
-
     public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
                                                          int reqWidth, int reqHeight) {
 
