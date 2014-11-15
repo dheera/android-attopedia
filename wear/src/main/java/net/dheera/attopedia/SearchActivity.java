@@ -19,6 +19,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -100,7 +101,7 @@ public class SearchActivity extends Activity {
 
                     @Override
                     public void onPageSelected(int i, int i2) {
-                        if(i==0 && i2==0) {
+                        if (i == 0 && i2 == 0) {
                             mImageView_again.setVisibility(View.VISIBLE);
                         } else {
                             mImageView_again.setVisibility(View.GONE);
@@ -112,6 +113,7 @@ public class SearchActivity extends Activity {
 
                     }
                 });
+                mGridViewPager.setVisibility(View.GONE);
 
                 mImageView_again.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -120,8 +122,24 @@ public class SearchActivity extends Activity {
                     }
                 });
 
-                mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
-                        R.drawable.searchback, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
+                FrameLayout f = (FrameLayout) findViewById(R.id.layout_round);
+                boolean isRound = (f!=null);
+
+                if(isRound) {
+                    mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
+                            R.drawable.searchbackround, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
+                } else {
+                    mImageView.setImageBitmap(decodeSampledBitmapFromResource(getResources(),
+                            R.drawable.searchback, SearchActivity.instance().screenWidth, SearchActivity.instance().screenHeight));
+                }
+
+                mImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        beginSpeech();
+                    }
+                });
+
             }
         });
 
@@ -175,6 +193,7 @@ public class SearchActivity extends Activity {
                                 if(  !outresult.title.contains("User:")
                                   && !outresult.title.contains("Wikipedia:")
                                   && !outresult.title.contains("File:")
+                                  && !outresult.title.contains("Talk:")
                                   && !outresult.title.contains("Category:")
                                   && !outresult.title.contains("Portal:")
                                   && !outresult.title.contains("Image:")
@@ -196,6 +215,7 @@ public class SearchActivity extends Activity {
                                         // if the number of rows changes
 
                                         mSearchAdapter = new SearchAdapter(self, getFragmentManager(), outresults);
+                                        mGridViewPager.setVisibility(View.VISIBLE);
                                         mGridViewPager.setAdapter(mSearchAdapter);
                                         mFrameLayout_progress.setVisibility(View.GONE);
                                     }
