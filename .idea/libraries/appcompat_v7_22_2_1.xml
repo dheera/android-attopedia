@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="appcompat-v7-22.2.1">
+    <ANNOTATIONS>
+      <root url="jar://$USER_HOME$/Dropbox/docs/code/android-attopedia/mobile/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/annotations.zip!/" />
+    </ANNOTATIONS>
+    <CLASSES>
+      <root url="file://$USER_HOME$/Dropbox/docs/code/android-attopedia/mobile/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/res" />
+      <root url="jar://$USER_HOME$/Dropbox/docs/code/android-attopedia/mobile/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.2.1/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar:///usr/local/android-sdk-linux/extras/android/m2repository/com/android/support/appcompat-v7/22.2.1/appcompat-v7-22.2.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

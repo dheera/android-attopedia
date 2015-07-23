@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$USER_HOME$/Dropbox/docs/code/android-attopedia/android-attopedia.iml" filepath="$USER_HOME$/Dropbox/docs/code/android-attopedia/android-attopedia.iml" />
+      <module fileurl="file://$USER_HOME$/Dropbox/docs/code/android-attopedia/mobile/mobile.iml" filepath="$USER_HOME$/Dropbox/docs/code/android-attopedia/mobile/mobile.iml" />
+      <module fileurl="file://$USER_HOME$/Dropbox/docs/code/android-attopedia/wear/wear.iml" filepath="$USER_HOME$/Dropbox/docs/code/android-attopedia/wear/wear.iml" />
+    </modules>
+  </component>
+</project>
