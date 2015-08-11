@@ -6,7 +6,8 @@
     android:background="@color/white"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
-    android:padding="25dp">
+    android:id="@+id/bil"
+    android:padding="32dp">
 
 <FrameLayout
     android:layout_width="fill_parent"

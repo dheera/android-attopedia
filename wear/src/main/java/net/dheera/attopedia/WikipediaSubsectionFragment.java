@@ -4,9 +4,11 @@ import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.support.wearable.view.BoxInsetLayout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,6 +25,27 @@ public class WikipediaSubsectionFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View contentView = inflater.inflate(R.layout.wikipedia_fragment_subsection, container, false);
+
+        /*
+        boolean isRound = false;
+        try {
+            FrameLayout f = (FrameLayout) SearchActivity.instance().findViewById(R.id.layout_round);
+            isRound = (f != null);
+        } catch(NullPointerException e) {
+            e.printStackTrace();
+        } */
+
+        try {
+            if (ShapeWear.isRound()) {
+                BoxInsetLayout mBil = (BoxInsetLayout) contentView.findViewById(R.id.bil);
+                int padding = (int) (getResources().getDisplayMetrics().density * 32);
+                mBil.setPadding(padding, padding, padding, padding);
+                mBil.invalidate();
+            }
+        } catch(ShapeWear.ScreenShapeNotDetectedException e) {
+            e.printStackTrace();
+        }
+
         Bundle bundle = getArguments();
 
         ProxyClient mProxyClient = ProxyClient.instance(SearchActivity.instance());

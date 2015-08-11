@@ -25,7 +25,7 @@ import org.json.JSONException;
  */
 public class WikipediaActivity extends Activity {
 
-    private static final String TAG = "attopedia.WikipediaActivity";
+    private static final String TAG = "attopedia";
     private static final boolean D = true;
     private static WikipediaActivity self;
 
